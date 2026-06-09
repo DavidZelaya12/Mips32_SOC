@@ -18,14 +18,14 @@ find_package(Threads REQUIRED)
 # vgatext — static library (VGA text window + font + framebuffer + keypad)
 # ============================================================================
 add_library(vgatext STATIC
-    vga/VGATextWindow.h
-    vga/VGATextWindow.cpp
-    vga/VGAFont.h
-    vga/VGAFont.cpp
-    vga/VGAConstants.h
-    vga/VGAColor.h
-    vga/VGAFramebuffer.h
-    vga/Keypad.h
+    src/vga/VGATextWindow.h
+    src/vga/VGATextWindow.cpp
+    src/vga/VGAFont.h
+    src/vga/VGAFont.cpp
+    src/vga/VGAConstants.h
+    src/vga/VGAColor.h
+    src/vga/VGAFramebuffer.h
+    src/vga/Keypad.h
 )
 
 target_include_directories(vgatext PUBLIC
@@ -40,8 +40,8 @@ target_link_libraries(vgatext PUBLIC
 # ============================================================================
 # vga_test — demo / test executable
 # ============================================================================
-add_executable(vga_test main.cpp
-    vga/VGAFramebuffer.cpp)
+add_executable(vga_test src/main.cpp
+    src/vga/VGAFramebuffer.cpp)
 
 target_link_libraries(vga_test PRIVATE
     vgatext
