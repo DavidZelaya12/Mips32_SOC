@@ -26,6 +26,8 @@ add_library(vgatext STATIC
     src/vga/VGAColor.h
     src/vga/VGAFramebuffer.h
     src/vga/Keypad.h
+    src/CLI_args/CliArgs.h
+    src/CLI_args/CliArgs.cpp
 )
 
 target_include_directories(vgatext PUBLIC

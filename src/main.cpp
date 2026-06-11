@@ -3,6 +3,8 @@
 #include "vga/VGAFont.h"
 #include "vga/Keypad.h"
 
+#include "CLI_args/CliArgs.h"
+
 #include <array>
 #include <cstdint>
 #include <format>
@@ -27,8 +29,17 @@ inline constexpr std::array<uint8_t, 16> kDefaultVGAPalette = {
     0x0F,
 };
 
-int main(int argc, char *argv[])
+int main(int argc, const char *argv[])
 {
+    CliArgs cliArgs(argc, argv);
+
+    if (auto err = cliArgs.parse(); err.has_value())
+    {
+        std::cerr << "Error parsing arguments: " << *err << "\n";
+        cliArgs.printUsage();
+        return EXIT_FAILURE;
+    }
+
     if (SDL_Init(SDL_INIT_VIDEO) < 0)
     {
         std::cerr << std::format("SDL_Init failed: '{}'\n", SDL_GetError());
@@ -43,7 +54,7 @@ int main(int argc, char *argv[])
     VGAFramebuffer framebuffer;
     VGATextWindow window(VGA_WINDOW_WIDTH, VGA_WINDOW_HEIGHT, keypad);
 
-    if (!window.initDisplay(framebuffer, argv[1], kDefaultVGAPalette))
+    if (!window.initDisplay(framebuffer, (cliArgs.getFontPath().c_str()), kDefaultVGAPalette))
     {
         std::cerr << "Failed to initialize VGA display.\n";
         return EXIT_FAILURE;

@@ -1,11 +1,10 @@
 #include <iostream>
 #include <format>
-#include "CliArgs.hpp"
+#include "CliArgs.h"
 
 void CliArgs::printUsage()
 {
-    std::cout << "Usage: " << program << " --program <file_path> --font <file_path> [--data <file_path>]\n"
-              << "\n"
+    std::cout << "Usage:\n"
               << "Options:\n"
               << "  --program <file_path>   Path to the machine code file (required)\n"
               << "  --font <file_path>      Path to the font file (required)\n"
