@@ -4,10 +4,12 @@
 
 void CliArgs::printUsage()
 {
-    std::cout
-        << "Usage: " << program << " --file <file_path>\n"
-        << "\nOptions:\n"
-        << "  --file <file_path>   Specify the file path to process\n";
+    std::cout << "Usage: " << program << " --program <file_path> --font <file_path> [--data <file_path>]\n"
+              << "\n"
+              << "Options:\n"
+              << "  --program <file_path>   Path to the machine code file (required)\n"
+              << "  --font <file_path>      Path to the font file (required)\n"
+              << "  --data <file_path>      Path to the data file (optional)\n";
 }
 
 std::optional<std::string> CliArgs::parse()
