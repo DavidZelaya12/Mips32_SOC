@@ -4,9 +4,9 @@
 #include "vga/Keypad.h"
 
 #include "CLI_args/CliArgs.h"
+#include "File_loader.cpp"
 
 #include <array>
-#include <cstdint>
 #include <format>
 #include <iostream>
 
@@ -38,6 +38,13 @@ int main(int argc, const char *argv[])
         std::cerr << "Error parsing arguments: " << *err << "\n";
         cliArgs.printUsage();
         return EXIT_FAILURE;
+    }
+
+    std::optional<std::vector<std::uint32_t>> instructions;
+    instructions = Loadinstructions(cliArgs.getProgramPath());
+    if (instructions == std::nullopt)
+    {
+        std::cerr << "Failed to load machine code from file: " << cliArgs.getProgramPath() << "\n";
     }
 
     if (SDL_Init(SDL_INIT_VIDEO) < 0)

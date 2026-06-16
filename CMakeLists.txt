@@ -28,6 +28,7 @@ add_library(vgatext STATIC
     src/vga/Keypad.h
     src/CLI_args/CliArgs.h
     src/CLI_args/CliArgs.cpp
+    src/File_loader.cpp
 )
 
 target_include_directories(vgatext PUBLIC
