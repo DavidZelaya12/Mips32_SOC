@@ -54,7 +54,7 @@ namespace Instruction
     std::variant<I_Format, R_Format, J_Format> DecodeInstruction(uint32_t instruction)
     {
         uint8_t opcode = (instruction >> 26) & 0x3F;
-        Format formatType = HandleInstructionFormat(opcode);
+        Format formatType = HandleFormat(opcode);
 
         switch (formatType)
         {

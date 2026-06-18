@@ -37,7 +37,7 @@ namespace Instruction
         uint32_t address;
     };
 
-    Format HandleInstructionFormat(uint8_t opcode);
+    Format HandleFormat(uint8_t opcode);
     I_Format DecodeIFormat(uint32_t instruction);
     R_Format DecodeRFormat(uint32_t instruction);
     J_Format DecodeJFormat(uint32_t instruction);
