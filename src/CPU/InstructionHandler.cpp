@@ -1,8 +1,8 @@
 #include "InstructionHandler.h"
 
-namespace Instructions
+namespace Instruction
 {
-    Format HandleInstructionFormat(uint8_t opcode)
+    Format HandleFormat(uint8_t opcode)
     {
         if (opcode == 0x00)
             return R;

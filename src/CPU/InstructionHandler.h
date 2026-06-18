@@ -3,7 +3,7 @@
 #include <variant>
 #include <stdexcept>
 
-namespace Instructions
+namespace Instruction
 {
     enum Format
     {
