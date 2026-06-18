@@ -18,6 +18,8 @@ find_package(Threads REQUIRED)
 # vgatext — static library (VGA text window + font + framebuffer + keypad)
 # ============================================================================
 add_library(vgatext STATIC
+    src/CPU/InstructionHandler.h
+    src/CPU/InstructionHandler.cpp
     src/vga/VGATextWindow.h
     src/vga/VGATextWindow.cpp
     src/vga/VGAFont.h
