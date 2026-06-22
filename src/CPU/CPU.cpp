@@ -203,6 +203,21 @@ void CPU::ExecJFormat(const Instruction::J_Format &jFormat)
 {
     switch (jFormat.opcode)
     {
+    // j
+    case 0x02:
+        std::cout << "Executing J instruction" << std::endl;
+        uint32_t targetAddress = jFormat.address << 2; // Shift left by 2 to get the byte address
+        registerFile->setRegister(RegisterFile::reg::Pc, targetAddress);
+        break;
+
+    // jal
+    case 0x03:
+        std::cout << "Executing JAL instruction" << std::endl;
+        uint32_t returnAddress = registerFile->getRegister(RegisterFile::reg::Pc) + 1;
+        registerFile->setRegister(RegisterFile::reg::Ra, returnAddress);
+        uint32_t targetAddress = jFormat.address << 2;
+        registerFile->setRegister(RegisterFile::reg::Pc, targetAddress);
+        break;
     }
 }
 
