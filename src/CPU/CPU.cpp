@@ -197,6 +197,118 @@ void CPU::ExecIFormat(const Instruction::I_Format &iFormat)
 {
     switch (iFormat.opcode)
     {
+        // beq
+    case 0x04:
+        std::cout << "Executing BEQ instruction" << std::endl;
+        uint32_t rsValue = registerFile->getRegister(static_cast<RegisterFile::reg>(iFormat.rs));
+        uint32_t rtValue = registerFile->getRegister(static_cast<RegisterFile::reg>(iFormat.rt));
+        if (rsValue == rtValue)
+        {
+            int16_t offset = static_cast<int16_t>(iFormat.immediate);
+            uint32_t newPC = registerFile->getRegister(RegisterFile::reg::Pc) + 1 + offset;
+            registerFile->setRegister(RegisterFile::reg::Pc, newPC);
+        }
+        break;
+
+    // bne
+    case 0x05:
+        std::cout << "Executing BNE instruction" << std::endl;
+        uint32_t rsValue = registerFile->getRegister(static_cast<RegisterFile::reg>(iFormat.rs));
+        uint32_t rtValue = registerFile->getRegister(static_cast<RegisterFile::reg>(iFormat.rt));
+        if (rsValue != rtValue)
+        {
+            int16_t offset = static_cast<int16_t>(iFormat.immediate);
+            uint32_t newPC = registerFile->getRegister(RegisterFile::reg::Pc) + 1 + offset;
+            registerFile->setRegister(RegisterFile::reg::Pc, newPC);
+        }
+        break;
+
+        // blez
+    case 0x06:
+        std::cout << "Executing BLEZ instruction" << std::endl;
+        uint32_t rsValue = registerFile->getRegister(static_cast<RegisterFile::reg>(iFormat.rs));
+        if (static_cast<int32_t>(rsValue) <= 0)
+        {
+            int16_t offset = static_cast<int16_t>(iFormat.immediate);
+            uint32_t newPC = registerFile->getRegister(RegisterFile::reg::Pc) + 1 + offset;
+            registerFile->setRegister(RegisterFile::reg::Pc, newPC);
+        }
+        break;
+        // bgtz
+    case 0x07:
+        std::cout << "Executing BGTZ instruction" << std::endl;
+        uint32_t rsValue = registerFile->getRegister(static_cast<RegisterFile::reg>(iFormat.rs));
+        if (static_cast<int32_t>(rsValue) > 0)
+        {
+            int16_t offset = static_cast<int16_t>(iFormat.immediate);
+            uint32_t newPC = registerFile->getRegister(RegisterFile::reg::Pc) + 1 + offset;
+            registerFile->setRegister(RegisterFile::reg::Pc, newPC);
+        }
+        break;
+
+    // addi
+    case 0x08:
+        std::cout << "Executing ADDI instruction" << std::endl;
+        uint32_t rsValue = registerFile->getRegister(static_cast<RegisterFile::reg>(iFormat.rs));
+        int16_t immediate = static_cast<int16_t>(iFormat.immediate);
+        uint32_t result = rsValue + immediate;
+        registerFile->setRegister(static_cast<RegisterFile::reg>(iFormat.rt), result);
+        break;
+        // addiu
+    case 0x09:
+        std::cout << "Executing ADDIU instruction" << std::endl;
+        uint32_t rsValue = registerFile->getRegister(static_cast<RegisterFile::reg>(iFormat.rs));
+        int16_t immediate = static_cast<int16_t>(iFormat.immediate);
+        uint32_t result = rsValue + immediate;
+        registerFile->setRegister(static_cast<RegisterFile::reg>(iFormat.rt), result);
+        break;
+
+        // slti
+    case 0x0A:
+        std::cout << "Executing SLTI instruction" << std::endl;
+        uint32_t rsValue = registerFile->getRegister(static_cast<RegisterFile::reg>(iFormat.rs));
+        int16_t immediate = static_cast<int16_t>(iFormat.immediate);
+        uint32_t result = (static_cast<int32_t>(rsValue) < immediate) ? 1 : 0;
+        registerFile->setRegister(static_cast<RegisterFile::reg>(iFormat.rt), result);
+        break;
+
+        // sltiu
+    case 0x0B:
+        std::cout << "Executing SLTIU instruction" << std::endl;
+        uint32_t rsValue = registerFile->getRegister(static_cast<RegisterFile::reg>(iFormat.rs));
+        int16_t immediate = static_cast<int16_t>(iFormat.immediate);
+        uint32_t result = (rsValue < static_cast<uint32_t>(immediate)) ? 1 : 0;
+        registerFile->setRegister(static_cast<RegisterFile::reg>(iFormat.rt), result);
+        break;
+
+        // adni
+    case 0x0C:
+        std::cout << "Executing ANDI instruction" << std::endl;
+        uint32_t rsValue = registerFile->getRegister(static_cast<RegisterFile::reg>(iFormat.rs));
+        uint16_t immediate = iFormat.immediate;
+        uint32_t result = rsValue & immediate;
+        registerFile->setRegister(static_cast<RegisterFile::reg>(iFormat.rt), result);
+        break;
+    // ori
+    case 0x0D:
+        std::cout << "Executing ORI instruction" << std::endl;
+        uint32_t rsValue = registerFile->getRegister(static_cast<RegisterFile::reg>(iFormat.rs));
+        uint16_t immediate = iFormat.immediate;
+        uint32_t result = rsValue | immediate;
+        registerFile->setRegister(static_cast<RegisterFile::reg>(iFormat.rt), result);
+        break;
+
+        // xori
+    case 0x0E:
+        std::cout << "Executing XORI instruction" << std::endl;
+        uint32_t rsValue = registerFile->getRegister(static_cast<RegisterFile::reg>(iFormat.rs));
+        uint16_t immediate = iFormat.immediate;
+        uint32_t result = rsValue ^ immediate;
+        registerFile->setRegister(static_cast<RegisterFile::reg>(iFormat.rt), result);
+        break;
+
+    case default:
+        throw std::runtime_error("Error: Unknown I-format instruction");
     }
 }
 void CPU::ExecJFormat(const Instruction::J_Format &jFormat)
