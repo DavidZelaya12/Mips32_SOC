@@ -307,6 +307,93 @@ void CPU::ExecIFormat(const Instruction::I_Format &iFormat)
         registerFile->setRegister(static_cast<RegisterFile::reg>(iFormat.rt), result);
         break;
 
+        // lui
+    case 0x0F:
+        std::cout << "Executing LUI instruction" << std::endl;
+        uint16_t immediate = iFormat.immediate;
+        uint32_t result = static_cast<uint32_t>(immediate) << 16;
+        registerFile->setRegister(static_cast<RegisterFile::reg>(iFormat.rt), result);
+        break;
+
+    // lb
+    case 0x20:
+        std::cout << "Executing LB instruction" << std::endl;
+        uint32_t baseAddress = registerFile->getRegister(static_cast<RegisterFile::reg>(iFormat.rs));
+        int16_t offset = static_cast<int16_t>(iFormat.immediate);
+        uint32_t effectiveAddress = baseAddress + offset;
+        uint8_t byteValue = memory->readByte(effectiveAddress);
+        registerFile->setRegister(static_cast<RegisterFile::reg>(iFormat.rt), static_cast<uint32_t>(static_cast<int8_t>(byteValue))); // Sign extension
+        break;
+
+    // lh
+    case 0x21:
+        std::cout << "Executing LH instruction" << std::endl;
+        uint32_t baseAddress = registerFile->getRegister(static_cast<RegisterFile::reg>(iFormat.rs));
+        int16_t offset = static_cast<int16_t>(iFormat.immediate);
+        uint32_t effectiveAddress = baseAddress + offset;
+        uint16_t halfValue = memory->readHalf(effectiveAddress);
+        registerFile->setRegister(static_cast<RegisterFile::reg>(iFormat.rt), static_cast<uint32_t>(static_cast<int16_t>(halfValue))); // Sign extension
+
+        // lw
+    case 0x23:
+        std::cout << "Executing LW instruction" << std::endl;
+        uint32_t baseAddress = registerFile->getRegister(static_cast<RegisterFile::reg>(iFormat.rs));
+        int16_t offset = static_cast<int16_t>(iFormat.immediate);
+        uint32_t effectiveAddress = baseAddress + offset;
+        uint32_t wordValue = memory->readWord(effectiveAddress);
+        registerFile->setRegister(static_cast<RegisterFile::reg>(iFormat.rt), wordValue);
+        break;
+
+        // lbu
+    case 0x24:
+        std::cout << "Executing LBU instruction" << std::endl;
+        uint32_t baseAddress = registerFile->getRegister(static_cast<RegisterFile::reg>(iFormat.rs));
+        int16_t offset = static_cast<int16_t>(iFormat.immediate);
+        uint32_t effectiveAddress = baseAddress + offset;
+        uint8_t byteValue = memory->readByte(effectiveAddress);
+        registerFile->setRegister(static_cast<RegisterFile::reg>(iFormat.rt), static_cast<uint32_t>(byteValue)); // No sign extension
+        break;
+
+    // lhu
+    case 0x25:
+        std::cout << "Executing LHU instruction" << std::endl;
+        uint32_t baseAddress = registerFile->getRegister(static_cast<RegisterFile::reg>(iFormat.rs));
+        int16_t offset = static_cast<int16_t>(iFormat.immediate);
+        uint32_t effectiveAddress = baseAddress + offset;
+        uint16_t halfValue = memory->readHalf(effectiveAddress);
+        registerFile->setRegister(static_cast<RegisterFile::reg>(iFormat.rt), static_cast<uint32_t>(halfValue)); // No sign extension
+        break;
+
+    // sb
+    case 0x28:
+        std::cout << "Executing SB instruction" << std::endl;
+        uint32_t baseAddress = registerFile->getRegister(static_cast<RegisterFile::reg>(iFormat.rs));
+        int16_t offset = static_cast<int16_t>(iFormat.immediate);
+        uint32_t effectiveAddress = baseAddress + offset;
+        uint32_t valueToStore = registerFile->getRegister(static_cast<RegisterFile::reg>(iFormat.rt));
+        memory->writeByte(effectiveAddress, static_cast<uint8_t>(valueToStore & 0xFF));
+        break;
+
+    // sh
+    case 0x29:
+        std::cout << "Executing SH instruction" << std::endl;
+        uint32_t baseAddress = registerFile->getRegister(static_cast<RegisterFile::reg>(iFormat.rs));
+        int16_t offset = static_cast<int16_t>(iFormat.immediate);
+        uint32_t effectiveAddress = baseAddress + offset;
+        uint32_t valueToStore = registerFile->getRegister(static_cast<RegisterFile::reg>(iFormat.rt));
+        memory->writeHalf(effectiveAddress, static_cast<uint16_t>(valueToStore & 0xFFFF));
+        break;
+
+        // sw
+    case 0x2B:
+        std::cout << "Executing SW instruction" << std::endl;
+        uint32_t baseAddress = registerFile->getRegister(static_cast<RegisterFile::reg>(iFormat.rs));
+        int16_t offset = static_cast<int16_t>(iFormat.immediate);
+        uint32_t effectiveAddress = baseAddress + offset;
+        uint32_t valueToStore = registerFile->getRegister(static_cast<RegisterFile::reg>(iFormat.rt));
+        memory->writeWord(effectiveAddress, valueToStore);
+        break;
+
     case default:
         throw std::runtime_error("Error: Unknown I-format instruction");
     }
