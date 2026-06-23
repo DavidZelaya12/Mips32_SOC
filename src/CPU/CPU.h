@@ -33,4 +33,6 @@ public:
     void ExecJFormat(const Instruction::J_Format &jFormat);
 
     RegisterFile *getRegisterFile() const { return registerFile; }
+    Memory *getMemory() const { return memory; }
+    std::vector<uint32_t> getInstructionMemory() const { return instructionMemory; }
 };

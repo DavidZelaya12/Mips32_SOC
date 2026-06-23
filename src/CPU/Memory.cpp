@@ -8,20 +8,6 @@ Memory::Memory(uint32_t imSize, uint32_t dmSize, uint32_t stackSize)
 {
 }
 
-void Memory::loadData(std::vector<uint8_t> &data)
-{
-    for (std::size_t i = 0; i < data.size() && i < dataMem.size(); ++i)
-        dataMem[i] = data[i];
-}
-
-uint32_t Memory::fetch(uint32_t address)
-{
-    return readByte(address) |
-           (readByte(address + 1) << 8) |
-           (readByte(address + 2) << 16) |
-           (readByte(address + 3) << 24);
-}
-
 uint8_t Memory::readByte(uint32_t address)
 {
     const uint8_t *p = resolve(address);
