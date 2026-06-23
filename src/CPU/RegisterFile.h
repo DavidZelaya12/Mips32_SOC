@@ -1,7 +1,6 @@
 #pragma once
 #include <cstdint>
 #include <vector>
-
 class RegisterFile
 {
 private:
@@ -48,7 +47,9 @@ public:
     };
 
     uint32_t getRegister(reg r);
+    uint32_t getRegister(uint8_t index);
     void setRegister(reg r, uint32_t value);
+    void setRegister(uint8_t index, uint32_t value);
     void incrementPC(uint32_t offset);
 
     RegisterFile()
