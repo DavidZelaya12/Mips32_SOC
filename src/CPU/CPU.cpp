@@ -76,6 +76,22 @@ void CPU::ExecRFormat(const Instruction::R_Format &rFormat)
         break;
     }
 
+        // mfhi
+    case 0x10:
+    {
+        std::cout << "Executing MFHI instruction" << std::endl;
+        registerFile->setRegister(rFormat.rd, registerFile->getRegister(RegisterFile::reg::Hi));
+        break;
+    }
+
+        // mflo
+    case 0x12:
+    {
+        std::cout << "Executing MFLO instruction" << std::endl;
+        registerFile->setRegister(rFormat.rd, registerFile->getRegister(RegisterFile::reg::Lo));
+        break;
+    }
+
         // mult
     case 0x18:
     {
@@ -548,7 +564,7 @@ void CPU::ExecuteInstruction()
 }
 void CPU::Run()
 {
-    for (int i = 0; i < instructionMemory.size(); ++i)
+    while (true)
     {
         ExecuteInstruction();
     }
