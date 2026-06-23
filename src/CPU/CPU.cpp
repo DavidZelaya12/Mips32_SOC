@@ -248,7 +248,7 @@ void CPU::ExecIFormat(const Instruction::I_Format &iFormat)
         if (rsValue == rtValue)
         {
             int16_t offset = static_cast<int16_t>(iFormat.immediate);
-            uint32_t newPC = registerFile->getRegister(RegisterFile::reg::Pc) + 1 + offset;
+            uint32_t newPC = registerFile->getRegister(RegisterFile::reg::Pc) + offset;
             registerFile->setRegister(RegisterFile::reg::Pc, newPC);
         }
         break;
@@ -263,7 +263,7 @@ void CPU::ExecIFormat(const Instruction::I_Format &iFormat)
         if (rsValue != rtValue)
         {
             int16_t offset = static_cast<int16_t>(iFormat.immediate);
-            uint32_t newPC = registerFile->getRegister(RegisterFile::reg::Pc) + 1 + offset;
+            uint32_t newPC = registerFile->getRegister(RegisterFile::reg::Pc) + offset;
             registerFile->setRegister(RegisterFile::reg::Pc, newPC);
         }
         break;
@@ -277,7 +277,7 @@ void CPU::ExecIFormat(const Instruction::I_Format &iFormat)
         if (static_cast<int32_t>(rsValue) <= 0)
         {
             int16_t offset = static_cast<int16_t>(iFormat.immediate);
-            uint32_t newPC = registerFile->getRegister(RegisterFile::reg::Pc) + 1 + offset;
+            uint32_t newPC = registerFile->getRegister(RegisterFile::reg::Pc) + offset;
             registerFile->setRegister(RegisterFile::reg::Pc, newPC);
         }
         break;
@@ -290,7 +290,7 @@ void CPU::ExecIFormat(const Instruction::I_Format &iFormat)
         if (static_cast<int32_t>(rsValue) > 0)
         {
             int16_t offset = static_cast<int16_t>(iFormat.immediate);
-            uint32_t newPC = registerFile->getRegister(RegisterFile::reg::Pc) + 1 + offset;
+            uint32_t newPC = registerFile->getRegister(RegisterFile::reg::Pc) + offset;
             registerFile->setRegister(RegisterFile::reg::Pc, newPC);
         }
         break;
@@ -489,7 +489,7 @@ void CPU::ExecJFormat(const Instruction::J_Format &jFormat)
     case 0x02:
     {
         std::cout << "Executing J instruction" << std::endl;
-        uint32_t targetAddress = jFormat.address << 2; // Shift left by 2 to get the byte address
+        uint32_t targetAddress = jFormat.address; // PC es indice de palabra: address ya es el indice destino
         registerFile->setRegister(RegisterFile::reg::Pc, targetAddress);
         break;
     }
@@ -498,9 +498,9 @@ void CPU::ExecJFormat(const Instruction::J_Format &jFormat)
     case 0x03:
     {
         std::cout << "Executing JAL instruction" << std::endl;
-        uint32_t returnAddress = registerFile->getRegister(RegisterFile::reg::Pc) + 1;
+        uint32_t returnAddress = registerFile->getRegister(RegisterFile::reg::Pc); // PC ya apunta a la siguiente instruccion
         registerFile->setRegister(RegisterFile::reg::Ra, returnAddress);
-        uint32_t targetAddress = jFormat.address << 2;
+        uint32_t targetAddress = jFormat.address;
         registerFile->setRegister(RegisterFile::reg::Pc, targetAddress);
         break;
     }
@@ -511,12 +511,19 @@ void CPU::ExecuteInstruction()
 {
     uint32_t pc = registerFile->getRegister(RegisterFile::reg::Pc);
     if (pc >= instructionMemory.size())
-        throw std::runtime_error("Program counter out of bounds");
+    {
+        std::cerr << "Error: PC out of bounds. PC: " << pc << ", Instruction Memory Size: " << instructionMemory.size() << std::endl;
+        return; // no indexar fuera de rango (seria UB)
+    }
 
     uint32_t instruction = instructionMemory[pc];
     std::variant<Instruction::I_Format, Instruction::R_Format, Instruction::J_Format> decodedInstruction = Instruction::DecodeInstruction(instruction);
 
     uint8_t opcode = static_cast<uint8_t>(instruction >> 26);
+
+    // Avanzar el PC antes de ejecutar (semantica PC+4): los branches/jumps
+    // ajustan relativo a esta siguiente instruccion.
+    registerFile->incrementPC(1);
 
     switch (Instruction::HandleFormat(opcode))
     {
@@ -538,12 +545,10 @@ void CPU::ExecuteInstruction()
     default:
         throw std::runtime_error("Error: Unknown instruction format");
     }
-
-    registerFile->incrementPC(1);
 }
 void CPU::Run()
 {
-    while (true)
+    for (int i = 0; i < instructionMemory.size(); ++i)
     {
         ExecuteInstruction();
     }

@@ -31,4 +31,6 @@ public:
     void ExecRFormat(const Instruction::R_Format &rFormat);
     void ExecIFormat(const Instruction::I_Format &iFormat);
     void ExecJFormat(const Instruction::J_Format &jFormat);
+
+    RegisterFile *getRegisterFile() const { return registerFile; }
 };
