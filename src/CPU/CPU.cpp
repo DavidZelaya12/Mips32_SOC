@@ -564,8 +564,9 @@ void CPU::ExecuteInstruction()
 }
 void CPU::Run()
 {
-    while (true)
+    while (registerFile->getRegister(RegisterFile::reg::Pc) < instructionMemory.size())
     {
         ExecuteInstruction();
     }
+    memory->blitVGA(framebuffer);
 }
