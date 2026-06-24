@@ -1,4 +1,6 @@
 #include "CPU.h"
+#include <thread>
+#include <chrono>
 
 void CPU::ExecRFormat(const Instruction::R_Format &rFormat)
 {
@@ -569,4 +571,37 @@ void CPU::Run()
         ExecuteInstruction();
     }
     memory->blitVGA(framebuffer);
+}
+
+void CPU::Run(std::atomic<bool> &stop)
+{
+    using namespace std::chrono;
+    constexpr int kStepsPerFrame = 20000;
+
+    bool halted = false;
+    while (!stop.load(std::memory_order_acquire))
+    {
+        if (!halted)
+        {
+            try
+            {
+                for (int i = 0; i < kStepsPerFrame; ++i)
+                {
+                    uint32_t pc = registerFile->getRegister(RegisterFile::reg::Pc);
+                    if (pc >= instructionMemory.size())
+                        break;
+                    ExecuteInstruction();
+                }
+            }
+            catch (const std::exception &e)
+            {
+                std::cerr << "CPU detenida: " << e.what() << std::endl;
+                halted = true;
+            }
+        }
+        // Productor: vuelca al back buffer y publica el frame para el hilo de la ventana.
+        memory->blitVGA(framebuffer);
+        framebuffer.commitFrame();
+        std::this_thread::sleep_for(milliseconds(16));
+    }
 }

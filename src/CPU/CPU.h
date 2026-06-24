@@ -8,6 +8,7 @@
 #include "../Timer.h"
 #include <iostream>
 #include <utility>
+#include <atomic>
 
 class CPU
 {
@@ -34,7 +35,8 @@ public:
         delete registerFile;
     };
 
-    void Run();
+    void Run();                          // batch: corre hasta que PC sale del programa
+    void Run(std::atomic<bool> &stop);   // hilo: corre por frames hasta que stop = true
     void ExecuteInstruction();
     void ExecRFormat(const Instruction::R_Format &rFormat);
     void ExecIFormat(const Instruction::I_Format &iFormat);
