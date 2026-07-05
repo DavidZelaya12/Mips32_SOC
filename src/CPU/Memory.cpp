@@ -78,6 +78,7 @@ void Memory::writeWord(uint32_t address, uint32_t value)
 
 const uint8_t *Memory::resolve(uint32_t address) const
 {
+
     if (address >= IM_BASE && address < IM_BASE + instructionMem.size())
         return &instructionMem[address - IM_BASE];
     if (address >= DM_BASE && address < DM_BASE + dataMem.size())
@@ -92,6 +93,6 @@ const uint8_t *Memory::resolve(uint32_t address) const
 
 uint8_t *Memory::resolve(uint32_t address)
 {
-    const Memory *self = this;
-    return const_cast<uint8_t *>(self->resolve(address));
+    const Memory *self = this;                            // Use const version to avoid code duplication
+    return const_cast<uint8_t *>(self->resolve(address)); // Safe because we only cast away constness for non-const objects
 }
