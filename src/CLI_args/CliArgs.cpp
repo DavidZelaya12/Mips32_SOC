@@ -13,9 +13,6 @@ void CliArgs::printUsage()
 
 std::optional<std::string> CliArgs::parse()
 {
-
-    std::cout << "Args count: " << argc_ << "\n";
-
     for (int i = 0; i < argc_; i++)
     {
         if (std::strcmp(argv_[i], "--program") == 0)
@@ -46,7 +43,6 @@ std::optional<std::string> CliArgs::parse()
         {
             return std::format("Invalid option '{}'", argv_[i]);
         }
-        std::cout << "Parsed argument: " << argv_[i] << "\n";
     }
 
     if (machine_code.empty())

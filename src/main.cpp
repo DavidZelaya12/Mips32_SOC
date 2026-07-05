@@ -63,14 +63,58 @@ void PrintInstructions(const std::vector<std::uint32_t> &instructions)
     }
 }
 
+inline constexpr std::array<const char *, 32> kRegisterNames = {
+    "$zero", "$at", "$v0", "$v1", "$a0", "$a1", "$a2", "$a3",
+    "$t0", "$t1", "$t2", "$t3", "$t4", "$t5", "$t6", "$t7",
+    "$s0", "$s1", "$s2", "$s3", "$s4", "$s5", "$s6", "$s7",
+    "$t8", "$t9", "$k0", "$k1", "$gp", "$sp", "$fp", "$ra"};
+
 void PrintRegisters(RegisterFile *registerFile)
 {
-    std::cout << "Register values:\n";
-    for (int i = 0; i < 32; ++i)
+    constexpr int kInnerWidth = 72; // 4 columnas x 18 chars
+    const std::string border = "+" + std::string(kInnerWidth, '-') + "+";
+
+    std::cout << "\n"
+              << std::format("+{:-^{}}+\n", " Estado final de registros ", kInnerWidth);
+    for (int row = 0; row < 8; ++row)
     {
-        std::cout << "R:" << i << ": " << std::hex << registerFile->getRegister(static_cast<uint8_t>(i)) << "\n";
+        std::cout << "|";
+        for (int col = 0; col < 4; ++col)
+        {
+            const int i = row + col * 8; // orden por columnas: $zero..$a3 | $t0.. | $s0.. | $t8..
+            std::cout << std::format(" {:>5} 0x{:08X} ", kRegisterNames[i],
+                                     registerFile->getRegister(static_cast<uint8_t>(i)));
+        }
+        std::cout << "|\n";
     }
-    std::cout << "PC: " << std::hex << registerFile->getRegister(RegisterFile::reg::Pc) << "\n";
+    std::cout << border << "\n"
+              << std::format("|{:^{}}|\n",
+                             std::format("HI 0x{:08X}    LO 0x{:08X}    PC 0x{:08X}",
+                                         registerFile->getRegister(RegisterFile::reg::Hi),
+                                         registerFile->getRegister(RegisterFile::reg::Lo),
+                                         registerFile->getRegister(RegisterFile::reg::Pc)),
+                             kInnerWidth)
+              << border << "\n";
+}
+
+void PrintBanner(const std::string &programPath, size_t instructionCount, bool usedDefaultProgram)
+{
+    std::cout << "\n"
+              << "==========================================================\n"
+              << "         MIPS32 SoC Simulator  |  CPU + VGA + MMIO        \n"
+              << "==========================================================\n";
+    if (usedDefaultProgram)
+        std::cout << "  Programa   : (semilla por defecto, no se pudo cargar '" << programPath << "')\n";
+    else
+        std::cout << "  Programa   : " << programPath << "\n";
+    std::cout << std::format("  Instrucciones cargadas : {}\n", instructionCount)
+              << "  Pantalla   : VGA texto 80x30, 16 colores\n"
+              << "----------------------------------------------------------\n"
+              << "  Controles:\n"
+              << "    Flechas / Q P B Espacio ............ teclas K1-K8\n"
+              << "    PgUp PgDn Home End Ins Del F1 F2 ... teclas K9-K16\n"
+              << "    R = Reset | S = Stop | Cerrar ventana = salir\n"
+              << "==========================================================\n\n";
 }
 
 int main(int argc, const char *argv[])
@@ -86,6 +130,7 @@ int main(int argc, const char *argv[])
 
     std::optional<std::vector<std::uint32_t>> instructions;
     instructions = Loadinstructions(cliArgs.getProgramPath());
+    const bool usedDefaultProgram = (instructions == std::nullopt);
     if (instructions == std::nullopt)
     {
         std::cerr << "Failed to load machine code from file: " << cliArgs.getProgramPath() << "\n";
@@ -138,7 +183,7 @@ int main(int argc, const char *argv[])
         };
     }
 
-    PrintInstructions(*instructions);
+    PrintBanner(cliArgs.getProgramPath(), instructions->size(), usedDefaultProgram);
 
     if (SDL_Init(SDL_INIT_VIDEO) < 0)
     {
@@ -158,6 +203,8 @@ int main(int argc, const char *argv[])
         std::cerr << "Failed to initialize VGA display.\n";
         return EXIT_FAILURE;
     }
+
+    std::cout << ">> Simulacion en curso... (cierra la ventana VGA para terminar)\n";
 
     // Silenciar el log por-instruccion mientras corre (evita flood/lag en bucles).
     std::streambuf *coutBuf = std::cout.rdbuf();
@@ -179,6 +226,7 @@ int main(int argc, const char *argv[])
     cpuThread.join();
 
     std::cout.rdbuf(coutBuf); // restaurar salida
+    std::cout << ">> Simulacion finalizada.\n";
     PrintRegisters(cpu->getRegisterFile());
 
     return EXIT_SUCCESS;
